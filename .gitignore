@@ -1,0 +1,22 @@
+# node modules
+node_modules/
+
+# Base de datos SQLite
+*.db
+
+# archivos del sistema/entorno
+.env
+.DS_Store
+Thumbs.db
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# backup de editor
+*.swp
+*.swo
+
+# editorconfig y VS Code
+.vscode/
