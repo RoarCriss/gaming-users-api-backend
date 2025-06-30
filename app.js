@@ -6,7 +6,9 @@ app.use(express.json());
 
 // rutas de users
 const usersRoutes = require("./routes/users");
+const gamesRoutes = require("./routes/games");
 app.use("/users", usersRoutes);
+app.use("/games", gamesRoutes);
 
 // middleware de error 404 genérico
 app.use((req, res) => {

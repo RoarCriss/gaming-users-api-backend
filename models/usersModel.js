@@ -4,22 +4,7 @@ const db = require("../db");
 const getAll = (cb) => {
   db.all("SELECT * FROM users", [], (err, rows) => {
     if (err) return cb(err);
-
-    // aquí estoy parseando los games si existen
-    const parsedRows = rows.map((user) => {
-      if (user.games && typeof user.games === "string") {
-        try {
-          user.games = JSON.parse(user.games);
-        } catch (e) {
-          user.games = [];
-        }
-      } else {
-        user.games = [];
-      }
-      return user;
-    });
-
-    cb(null, parsedRows);
+    cb(null, rows);
   });
 };
 
