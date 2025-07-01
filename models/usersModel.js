@@ -1,4 +1,6 @@
 const db = require("../db");
+const rawgApi = require("../rawg/api")
+const gamesModel = require("../models/gamesModel")
 
 // get all users
 const getAll = (cb) => {
@@ -86,6 +88,64 @@ const update = (id, data, cb) => {
   });
 };
 
+const addGame = (user, game, cb) => {
+
+  // Busca en la tabla "users" si existe el usuario que le pasamos en el body.
+  db.get("SELECT id FROM users WHERE username = ?", [user], (err, userRow) => {
+    if (err) return cb(err);
+    if (!userRow) return cb(new Error("Usuario no encontrado"));
+
+    // Busca en la tabla "games" si existe el juego que le pasamos en el body
+    db.get("SELECT id FROM games WHERE name = ?", [game], async (err, gameRow) => {
+      if (err) return cb(err);
+
+      // Si no está el juego en la tabla, lo va a buscar a la API de Rawg
+      if (!gameRow) {
+        try {
+          // Esta función está en "../rawg/api.js"
+          const gameData = await rawgApi.getRelatedGames(game);
+
+          if (!gameData) {
+            return cb(new Error("Juego no encontrado ni en la BBDD ni en la API"));
+          }
+
+          // Si encuentra el juego en la API de Rawg, lo añade a nuestra bbdd. 
+          // Esta función está en "../models/gamesModel"
+          gamesModel.addGame(gameData, (err, insertedGameId) => {
+            if (err) return cb(err);
+
+            // Inserta la relación entre user y game por sus IDs en la tabla "user_games"
+            db.run(
+              "INSERT INTO user_games (user_id, game_id) VALUES (?, ?)",
+              [userRow.id, insertedGameId],
+              (err) => {
+                if (err) return cb(err);
+                cb(null, { message: "Juego añadido correctamente desde la API" });
+              }
+            );
+          });
+
+        } catch (error) {
+          return cb(error);
+        }
+
+        return; 
+      }
+
+      // Si el juego ya existe en la tabla, se asigna directamente
+      db.run(
+        "INSERT INTO user_games (user_id, game_id) VALUES (?, ?)",
+        [userRow.id, gameRow.id],
+        (err) => {
+          if (err) return cb(err);
+          cb(null, { message: "Juego añadido correctamente" });
+        }
+      );
+    });
+  });
+};
+
+
 // delete user
 const remove = (id, cb) => {
   db.run("DELETE FROM users WHERE id = ?", [id], function (err) {
@@ -93,4 +153,4 @@ const remove = (id, cb) => {
   });
 };
 
-module.exports = { getAll, getById, create, update, remove };
+module.exports = { getAll, getById, create, update, remove, addGame };

@@ -19,16 +19,21 @@ db.serialize(() => {
 
       db.run(`CREATE TABLE IF NOT EXISTS games (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
+        name TEXT NOT NULL UNIQUE,
         slug TEXT NOT NULL,
         description TEXT NOT NULL,
         released TEXT NOT NULL,
-        background_path TEXT NOT NULL,
-        background_path_additional TEXT NOT NULL
-        
+        background_path TEXT NOT NULL
         );`);
 
-
+      db.run(`CREATE TABLE IF NOT EXISTS user_games (
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        game_id INTEGER,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (game_id) REFERENCES games(id),
+        UNIQUE(user_id, game_id)
+        );`);
 
 });
 
