@@ -1,40 +1,100 @@
 const db = require("../db");
 
-// get all users
-const getAll = (cb) => {
+
+const getAllGamesFromDatabase = (cb) => {
   db.all("SELECT * FROM games", [], (err, rows) => {
     if (err) return cb(err);
     cb (null, rows);
   });
 };
 
-const addGame = (gameData, cb) => {
-  const { name, slug, description, released, background_image} = gameData;
 
+
+// Añade un juego a la bbdd y devuelve el ID asignado.
+const addGameToDatabase = async (gameData) => {
   const query = `
-    INSERT INTO games (name, slug, description, released, background_path)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO games (name, slug)
+    VALUES (?, ?)
   `;
 
-  db.run(
-    query,
-    [name, slug, description, released, background_image],
-    function (err) {
-      if (err) return cb(err);
-      // this.lastID contiene el ID del registro insertado en SQLite
-      cb(null, this.lastID);
-    }
-  );
+  const values = [
+    gameData.name,
+    gameData.slug
+  ];
+
+  return new Promise((resolve, reject) => {
+    db.run(query, values, function (err) {
+      if (err) {
+        console.error("Error al insertar en DB:", err.message);
+        return reject(err);
+      }
+      resolve(this.lastID); // ✅ esto ahora se propaga correctamente
+    });
+  });
 };
 
-const checkGame = (gameName, cb) => {
-  
-  const query = `SELECT * FROM games WHERE slug = ?`;
+const addGameToUser = async (userId, gameId) => {
+  return new Promise((resolve, reject) => {
+    const query = `INSERT INTO user_games (user_id, game_id) VALUES (?, ?)`;
+    db.run(query, [userId, gameId], function (err) {
+      if (err) return reject(err);
+      resolve({ message: "Juego añadido correctamente" });
+    });
+  });
+};
 
-  db.get(query, [gameName], (err, row) => {
+const checkGamesInDatabase = (keywords, cb) => {
+  const conditions = keywords.map(() => `slug LIKE ?`).join(" OR ");
+  const values = keywords.map(word => `%${word}%`);
+
+  const query = `SELECT * FROM games WHERE ${conditions}`;
+  db.all(query, values, (err, row) => {
     if (err) return cb(err);
     cb(null, row);
   });
 };
 
-module.exports = { getAll, addGame, checkGame };
+
+module.exports = { getAllGamesFromDatabase, addGameToDatabase, checkGamesInDatabase, addGameToUser };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const checkSimilarGames = (gameName, cb) => {
+
+//   const query = `SELECT * FROM games WHERE slug LIKE ?`
+
+//    db.get(query, [`%${gameName}%`], (err, row) => {
+//     if (err) return cb(err);
+//     cb(null, row);
+//   });
+// }

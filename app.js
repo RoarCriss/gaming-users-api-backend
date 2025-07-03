@@ -16,8 +16,10 @@ app.use(express.json());
 // rutas de users
 const usersRoutes = require("./routes/users");
 const gamesRoutes = require("./routes/games");
+// const extApiRoutes = require("./routes/extApi");
 app.use("/users", usersRoutes);
 app.use("/games", gamesRoutes);
+// app.use("/extApi", extApiRoutes);
 
 // middleware de error 404 genérico
 app.use((req, res) => {

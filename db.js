@@ -20,10 +20,7 @@ db.serialize(() => {
       db.run(`CREATE TABLE IF NOT EXISTS games (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE,
-        slug TEXT NOT NULL,
-        description TEXT NOT NULL,
-        released TEXT NOT NULL,
-        background_path TEXT NOT NULL
+        slug TEXT NOT NULL UNIQUE
         );`);
 
       db.run(`CREATE TABLE IF NOT EXISTS user_games (
