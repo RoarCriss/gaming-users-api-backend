@@ -77,4 +77,35 @@ const remove = (id, cb) => {
   });
 };
 
-module.exports = { getAll, create, update, remove };
+
+
+// - userId: el ID del usuario
+// - cb: función que se llamará cuando termine la consulta
+const getUserGames = (userId, cb) => {
+
+  // Ejecutamos una consulta SQL con db.all (de sqlite3)
+  db.all(
+    `SELECT games.name 
+     FROM user_games 
+     INNER JOIN games ON user_games.game_id = games.id 
+     WHERE user_games.user_id = ?`, // ← usamos ? como placeholder seguro
+     
+    [userId], // ← el valor que sustituirá el "?" en la consulta para evitar SQL injection
+
+    // Este es el callback que se ejecuta cuando la base de datos responde
+    (err, rows) => {
+      
+      // Si hay un error (err no es null), lo devolvemos a través del callback con el error como primer parámetro
+      // La convención en Node.js es: cb(error, resultado)
+      if (err) return cb(err); 
+
+      // El primer parámetro del callback es SIEMPRE el error si lo hay
+      // Si no hay error, devolvemos null como primer parámetro (porque no hay error),
+      // y el segundo parámetro contiene las filas (rows) que nos devolvió la base de datos
+      cb(null, rows); 
+    }
+  );
+}
+
+
+module.exports = { getAll, create, update, remove, getUserGames };

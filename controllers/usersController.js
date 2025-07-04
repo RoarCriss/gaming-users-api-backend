@@ -61,4 +61,18 @@ exports.remove = (req, res) => {
   });
 };
 
+exports.getUserGames =  (req, res) => {
+  const {userId} = req.body
+
+    model.getUserGames(userId, (err, games) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (!userId) return res.status(404).json({ error: "User not found" });
+    res.json(games);
+  });
+}
+   
+
+  
+
+
 

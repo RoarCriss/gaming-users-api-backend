@@ -10,7 +10,7 @@ const getAllGamesFromDatabase = (cb) => {
 
 
 
-// Añade un juego a la bbdd y devuelve el ID asignado.
+// Añade un juego a la bbdd y devuelve el ID asignado.  TENGO QUE CONVERTIRLO A FUNCION CON CALLBACK
 const addGameToDatabase = async (gameData) => {
   const query = `
     INSERT INTO games (name, slug)
@@ -28,7 +28,7 @@ const addGameToDatabase = async (gameData) => {
         console.error("Error al insertar en DB:", err.message);
         return reject(err);
       }
-      resolve(this.lastID); // ✅ esto ahora se propaga correctamente
+      resolve(this.lastID);
     });
   });
 };
