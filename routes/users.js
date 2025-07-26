@@ -10,7 +10,7 @@ router.get("/:id", usersController.getById);
 
 // POST create user
 router.post("/", usersController.create);
-router.post("/add", usersController.addGame);
+// router.post("/add", usersController.addGame);
 
 // PATCH update user
 router.patch("/:id", usersController.update);
